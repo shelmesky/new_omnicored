@@ -685,6 +685,7 @@ public:
      * Generate a new key
      */
     CPubKey GenerateNewKey();
+	CKey JSONGenerateNewKey();
     //! Adds a key to the store, and saves it to disk.
     bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
     //! Adds a key to the store, without saving it to disk (used by LoadWallet)
@@ -781,6 +782,7 @@ public:
     void KeepKey(int64_t nIndex);
     void ReturnKey(int64_t nIndex);
     bool GetKeyFromPool(CPubKey &key);
+	bool JSONGetKeyFromPool(CKey &key);
     int64_t GetOldestKeyPoolTime();
     void GetAllReserveKeys(std::set<CKeyID>& setAddress) const;
 

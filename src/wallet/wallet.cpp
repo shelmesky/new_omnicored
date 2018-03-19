@@ -1429,7 +1429,9 @@ void CWalletTx::GetAccountAmounts(const string& strAccount, CAmount& nReceived,
             if (pwallet->mapAddressBook.count(r.destination))
             {
                 map<CTxDestination, CAddressBookData>::const_iterator mi = pwallet->mapAddressBook.find(r.destination);
-                if (mi != pwallet->mapAddressBook.end() && (*mi).second.name == strAccount)
+                //if (mi != pwallet->mapAddressBook.end() && (*mi).second.name == strAccount)
+                //    nReceived += r.amount;
+				if (mi != pwallet->mapAddressBook.end() && CBitcoinAddress((*mi).first).ToString() == strAccount)
                     nReceived += r.amount;
             }
             else if (strAccount.empty())

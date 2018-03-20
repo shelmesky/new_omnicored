@@ -106,7 +106,8 @@ protected:
 public:
     void Flush();
     void Close();
-
+	int WriteDataToDatabase(std::string coll_name, std::string ssKeyType, char * key, unsigned int keySize, char * value, unsigned int valueSize);
+	
 private:
     CDB(const CDB&);
     void operator=(const CDB&);
@@ -149,6 +150,8 @@ protected:
     template <typename K, typename T>
     bool Write(const K& key, const T& value, bool fOverwrite = true)
     {
+		int ret;
+		
         if (!pdb)
             return false;
         if (fReadOnly)
@@ -165,9 +168,33 @@ protected:
         ssValue.reserve(10000);
         ssValue << value;
         Dbt datValue(&ssValue[0], ssValue.size());
+		
+		// write key and value to database
+		std::string keyTypeString;
+		ssKey >> keyTypeString;
 
-        // Write
-        int ret = pdb->put(activeTxn, &datKey, &datValue, (fOverwrite ? 0 : DB_NOOVERWRITE));
+		if (keyTypeString== "key" || keyTypeString == "wkey" || keyTypeString == "mkey" || keyTypeString == "ckey") {
+			
+			unsigned int keysize = (unsigned int)(ssKey.size());
+			char * keydata = ssKey.data();
+			ret = this->WriteDataToDatabase("key", keyTypeString, keydata, keysize, ssValue.data(), (unsigned int)ssValue.size());
+			
+		} else if (keyTypeString == "name") {	
+			
+			unsigned int keysize = (unsigned int)(ssKey.size());
+			char * keydata = ssKey.data();
+			ret = this->WriteDataToDatabase("name", keyTypeString, keydata, keysize, ssValue.data(), (unsigned int)ssValue.size());
+
+		}else if (keyTypeString == "purpose"){
+			
+			unsigned int keysize = (unsigned int)(ssKey.size());
+			char * keydata = ssKey.data();
+			ret = this->WriteDataToDatabase("purpose", keyTypeString, keydata, keysize, ssValue.data(), (unsigned int)ssValue.size());
+
+		} else {
+			// Write
+			ret = pdb->put(activeTxn, &datKey, &datValue, (fOverwrite ? 0 : DB_NOOVERWRITE));
+		}
 
         // Clear memory in case it was a private key
         memset(datKey.get_data(), 0, datKey.get_size());
